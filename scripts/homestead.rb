@@ -19,6 +19,7 @@ class Homestead
     config.vm.network "forwarded_port", guest: 80, host: 8000
     config.vm.network "forwarded_port", guest: 3306, host: 33060
     config.vm.network "forwarded_port", guest: 5432, host: 54320
+    config.vm.network "forwarded_port", guest: 27017, host: 27018
 
     # Configure The Public Key For SSH Access
     config.vm.provision "shell" do |s|
@@ -38,6 +39,19 @@ class Homestead
     # Copy The Bash Aliases
     config.vm.provision "shell" do |s|
       s.inline = "cp /vagrant/aliases /home/vagrant/.bash_aliases"
+    end
+
+    # Install And Configure ZSH With oh-my-zsh If Needed
+    if settings["shell"]["type"] == "zsh"
+      config.vm.provision "shell" do |s|
+        s.inline = "bash /vagrant/scripts/install_zsh.sh $1"
+        s.args = settings["shell"]["oh-my-zsh-theme"]
+      end
+    end
+
+    # Run Userscript
+    config.vm.provision "shell" do |s|
+      s.inline = "bash /vagrant/scripts/userscript.sh"
     end
 
     # Register All Of The Configured Shared Folders
